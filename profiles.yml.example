@@ -1,0 +1,7 @@
+cvm_fundos:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: ../data/cvm_fundos.duckdb
+      threads: 4
