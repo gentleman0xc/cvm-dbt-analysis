@@ -1,0 +1,13 @@
+﻿.venv/
+__pycache__/
+*.pyc
+*.duckdb
+data/raw/
+data/processed/
+target/
+dbt_packages/
+.env
+profiles.yml
+logs/
+*.egg-info/
+.pytest_cache/
