@@ -1,0 +1,34 @@
+version: 2
+
+sources:
+  - name: raw
+    database: cvm_fundos
+    schema: main
+    tables:
+      - name: raw_informes_diarios
+      - name: raw_cadastro_fundos
+
+models:
+  - name: stg_informes_diarios
+    description: "Informes diários de fundos CVM — limpos e padronizados."
+    columns:
+      - name: cnpj_fundo
+        description: "CNPJ do fundo de investimento"
+        tests:
+          - not_null
+      - name: data_competencia
+        tests:
+          - not_null
+      - name: valor_cota
+        tests:
+          - not_null
+  - name: stg_cadastro_fundos
+    description: "Cadastro completo de fundos registrados na CVM."
+    columns:
+      - name: cnpj_fundo
+        tests:
+          - not_null
+          - unique:
+              config:
+                severity: warn
+                description: "CNPJs podem repetir pois um fundo pode ter múltiplas classes registradas na CVM."
