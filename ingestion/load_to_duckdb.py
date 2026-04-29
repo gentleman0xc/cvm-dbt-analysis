@@ -26,6 +26,19 @@ def load_cadastro(con: duckdb.DuckDBPyConnection) -> None:
     n = con.execute("SELECT COUNT(*) FROM raw_cadastro_fundos").fetchone()[0]
     log.info(f"Cadastro carregado: {n:,} fundos")
 
+def load_cadastro_classes(con: duckdb.DuckDBPyConnection) -> None:
+    csv = RAW_DIR / "cadastro" / "registro_fundo_classe.csv"
+    con.execute(f"""
+        CREATE OR REPLACE TABLE raw_cadastro_classes AS
+        SELECT * FROM read_csv('{csv}',
+            delim=';',
+            header=true,
+            encoding='cp1252'
+        )
+    """)
+    n = con.execute("SELECT COUNT(*) FROM raw_cadastro_classes").fetchone()[0]
+    log.info(f"Cadastro de classes carregado: {n:,} classes")
+
 def load_informes(con: duckdb.DuckDBPyConnection) -> int:
     """Carrega todos os CSVs de informes diários com deduplicação."""
     con.execute("""
@@ -85,6 +98,7 @@ if __name__ == "__main__":
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     con = duckdb.connect(str(DB_PATH))
     load_cadastro(con)
+    load_cadastro_classes(con)
     load_informes(con)
     con.close()
     log.info("Banco pronto.")

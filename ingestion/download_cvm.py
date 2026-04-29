@@ -82,12 +82,38 @@ def download_informes_diarios(meses: int = 6) -> None:
         log.info(f"Extraído: {csv_dest.name}")
         time.sleep(0.5)
 
+CAD_LEGACY_URL = "https://dados.cvm.gov.br/dados/FI/CAD/DADOS/cad_fi.csv"
+CAD_CLASSE_URL = "https://dados.cvm.gov.br/dados/FI/CAD/DADOS/registro_fundo_classe.zip"
+
 def download_cadastro() -> None:
-    dest = RAW_DIR / "cadastro" / "cad_fi.csv"
-    if not dest.exists():
-        download_file(CAD_URL, dest)
+    # Cadastro legado (fundos não adaptados RCVM175)
+    dest_legacy = RAW_DIR / "cadastro" / "cad_fi.csv"
+    if not dest_legacy.exists():
+        download_file(CAD_LEGACY_URL, dest_legacy)
     else:
-        log.info("Cadastro já existe — pulando")
+        log.info("Cadastro legado já existe — pulando")
+
+    # Cadastro novo (fundos adaptados RCVM175 — classes e subclasses)
+    dest_zip = RAW_DIR / "cadastro" / "registro_fundo_classe.zip"
+    dest_csv_dir = RAW_DIR / "cadastro"
+    dest_csv = dest_csv_dir / "registro_fundo_classe.csv"
+
+    if dest_csv.exists():
+        log.info("Cadastro de classes já existe — pulando")
+        return
+
+    if download_file(CAD_CLASSE_URL, dest_zip):
+        log.info("Extraindo registro_fundo_classe.zip...")
+        with zipfile.ZipFile(dest_zip, 'r') as z:
+            for name in z.namelist():
+                if name.endswith('.csv'):
+                    z.extract(name, dest_csv_dir)
+                    extracted = dest_csv_dir / name
+                    if extracted != dest_csv:
+                        extracted.rename(dest_csv)
+                    break
+        dest_zip.unlink()
+        log.info("Cadastro de classes extraído.")
 
 if __name__ == "__main__":
     download_cadastro()

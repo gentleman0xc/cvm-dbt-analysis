@@ -7,6 +7,7 @@ sources:
     tables:
       - name: raw_informes_diarios
       - name: raw_cadastro_fundos
+      - name: raw_cadastro_classes
 
 models:
   - name: stg_informes_diarios
